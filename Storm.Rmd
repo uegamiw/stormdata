@@ -1,0 +1,23 @@
+---
+title: "RepDataPA2"
+author: "Wegamoon"
+date: "September 7, 2014"
+output: html_document
+---
+#Download and preparement of data.
+
+## Data Download.
+
+Before starting the analysis, download the file form [here](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2).
+
+This file is compressed as a bzip2 file, then expand it on your working
+directory and rename it to "stormData.csv"
+
+## Read the file.
+
+Read the storm data to a R. This process may take some second. 
+Please be patient!
+```{r readSotrmFile, cache=TRUE}
+stormdata <- read.csv(file = "stormData.csv")
+```
+
