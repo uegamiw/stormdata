@@ -1,11 +1,6 @@
----
-title: "RepDataPA2"
-author: "Wegamoon"
-date: "September 7, 2014"
-output: 
-        html_document:
-                keep_md: true
----
+# RepDataPA2
+Wegamoon  
+September 7, 2014  
 #Download and preparement of data.
 
 ## Data Download.
@@ -28,7 +23,8 @@ directory and rename it to "stormData.csv"
 
 Read the storm data to a R. This process may take some second. 
 Please be patient!
-```{r readSotrmFile, cache=TRUE}
+
+```r
 stormdata <- read.csv(file = "stormData.csv")
 ```
 
@@ -36,7 +32,8 @@ stormdata <- read.csv(file = "stormData.csv")
 This database report the number of fatalities and injuries in each event.
 First, the sum of the fatalities and injuries in each event name was calculated.
 
-```{r, cache=TRUE}
+
+```r
 library(plyr)
 healthsum <- ddply(stormdata, .(EVTYPE), summarise,
                 fatalities = sum(FATALITIES),
@@ -45,7 +42,8 @@ healthsum <- ddply(stormdata, .(EVTYPE), summarise,
 
 These data frame are reorderd by the number of fatalities and injuries,
 and the top ten and the sum of other cases are extracted.
-```{r}
+
+```r
 library(plyr)
 fatalOrd <- arrange(healthsum, desc(fatalities))[,1:2]
 injOrd <- arrange(healthsum, desc(injuries))[,c(1, 3)]
@@ -56,7 +54,8 @@ otherInj <- c("Other", sum(injOrd$injuries[11:nrow(injOrd)]))
 top10injury <- rbind(injOrd[1:10,], otherInj)
 ```
 
-```{r plotting}
+
+```r
 library(ggplot2)
 library(reshape2)
 combined <- rbind(melt(top10fatal, id= "EVTYPE"),
@@ -67,6 +66,8 @@ ggplot(combined, aes(x = EVTYPE, y = value))+
         geom_bar(stat="identity")+
         facet_grid(~variable)
 ```
+
+![plot of chunk plotting](./Storm_files/figure-html/plotting.png) 
 
 The number of injuries and fatalities of tolnado is far more than other.
 
