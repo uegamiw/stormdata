@@ -24,6 +24,7 @@ directory and rename it to "stormData.csv"
 Read the storm data to a R. This process may take some second. 
 Please be patient!
 
+
 ```r
 stormdata <- read.csv(file = "stormData.csv")
 ```
@@ -56,7 +57,8 @@ healthsum <- healthsum[!(healthsum$fatalities == 0 & healthsum$injuries == 0),]
 ```
 
 These data frame are reorderd by the number of fatalities and injuries,
-and the top ten and the sum of other cases are extracted.
+and the top 20 and the sum of other cases are extracted.
+
 
 ```r
 library(plyr)
@@ -100,7 +102,3 @@ print(g2, vp=viewport(layout.pos.row=1, layout.pos.col=2))
 ![plot of chunk plotting](./Storm_files/figure-html/plotting.png) 
 
 The number of injuries and fatalities of tolnado is far more than other.
-
-
-- How to arrange the order of factors?
-- It might be better to merge the facet and colored.
