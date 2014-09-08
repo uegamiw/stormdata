@@ -28,9 +28,23 @@ Please be patient!
 stormdata <- read.csv(file = "stormData.csv")
 ```
 
-## Which type of events are most harmful?
+The data from 2000 to present was extracted because there are too many 
+variations in "event type" field. 
+
+- [Database datail](http://www.ncdc.noaa.gov/stormevents/details.jsp?type=collection)
+
+
+```r
+library(lubridate)
+stormdata$BGN_DATE <- mdy_hms(stormdata$BGN_DATE) # Convert to POSIXct format
+stormdata <- stormdata[stormdata$BGN_DATE >= "2000-01-01",] # Subsetting
+```
+
+
+## Which type of events are most harmful with respent to population health?
 This database report the number of fatalities and injuries in each event.
-First, the sum of the fatalities and injuries in each event name was calculated.
+First, the sum of the fatalities and injuries in each event name was calculated,
+and subsetted the data which recode more than one injury or fatality.
 
 
 ```r
@@ -38,6 +52,7 @@ library(plyr)
 healthsum <- ddply(stormdata, .(EVTYPE), summarise,
                 fatalities = sum(FATALITIES),
                 injuries = sum(INJURIES))
+healthsum <- healthsum[!(healthsum$fatalities == 0 & healthsum$injuries == 0),]
 ```
 
 These data frame are reorderd by the number of fatalities and injuries,
@@ -45,26 +60,41 @@ and the top ten and the sum of other cases are extracted.
 
 ```r
 library(plyr)
-fatalOrd <- arrange(healthsum, desc(fatalities))[,1:2]
-injOrd <- arrange(healthsum, desc(injuries))[,c(1, 3)]
-otherFat <- c("Other", sum(fatalOrd$fatalities[11:nrow(fatalOrd)]))
+injOrd <- arrange(healthsum, desc(injuries))[1:20,c(1,3)]
+injOrd$EVTYPE <- factor(injOrd$EVTYPE,
+                        levels = injOrd[order(injOrd$injuries),"EVTYPE"])
 
-top10fatal <- rbind(fatalOrd[1:10,], otherFat)
-otherInj <- c("Other", sum(injOrd$injuries[11:nrow(injOrd)]))
-top10injury <- rbind(injOrd[1:10,], otherInj)
+fataOrd <- arrange(healthsum, desc(fatalities))[1:20, c(1,2)]
+fataOrd$EVTYPE <- factor(fataOrd$EVTYPE,
+                        levels = fataOrd[order(fataOrd$fatalities),"EVTYPE"])
 ```
+
 
 
 ```r
 library(ggplot2)
-library(reshape2)
-combined <- rbind(melt(top10fatal, id= "EVTYPE"),
-                 melt(top10injury, id = "EVTYPE")
-                 )
-combined$value <- as.numeric(combined$value)
-ggplot(combined, aes(x = EVTYPE, y = value))+
-        geom_bar(stat="identity")+
-        facet_grid(~variable)
+injOrd$injuries <- as.numeric(injOrd$injuries)
+fataOrd$fatalities <- as.numeric(fataOrd$fatalities)
+
+g1 <- ggplot(injOrd, aes(x = EVTYPE, y = injuries)) +
+        geom_bar(stat = "identity") +
+        ggtitle("INJURIES")+
+        xlab("")+
+        ylab("")+
+        coord_flip()
+
+g2 <- ggplot(fataOrd, aes(x = EVTYPE, y = fatalities)) +
+        geom_bar(stat = "identity") +
+        ggtitle("FATALITIES")+
+        xlab("")+
+        ylab("")+
+        coord_flip()
+
+library(grid)
+grid.newpage()
+pushViewport(viewport(layout=grid.layout(1, 2)))
+print(g1, vp=viewport(layout.pos.row=1, layout.pos.col=1))
+print(g2, vp=viewport(layout.pos.row=1, layout.pos.col=2))
 ```
 
 ![plot of chunk plotting](./Storm_files/figure-html/plotting.png) 
