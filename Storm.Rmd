@@ -1,17 +1,17 @@
 ---
 title: "RepDataPA2"
-author: "Wegamoon"
-date: "September 7, 2014"
 output: 
         html_document:
                 keep_md: true
 ---
-#Download and preparement of data.
 
-### Data
+# Summary
+This analysis is a part of the assignment in "Reprodicuble Research" course
+in Coursera. 
 
-Before starting the analysis, download the file form [here](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2). For more information
-about this dataset see:
+Storms and other severe weather events can cause both public health and economic problems for communities and municipalities.
+Many severe events can result in fatalities, injuries, and property damage, and preventing such outcomes to the extent possible is a key concern.
+This project involves exploring the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database.
 
 - National Weather Service [Storm Data Documentation][1]
 
@@ -20,13 +20,18 @@ about this dataset see:
 [1]: https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf
 [2]: https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2FNCDC%20Storm%20Events-FAQ%20Page.pdf
 
+This database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage.
 
-This file is compressed as a bzip2 file, then expand it on your working
-directory and rename it to "stormData.csv"
+In this analysis, I compared the impact on public health (number of injury and mortality) and amount of economic damage (damage on property and crop).
 
-### Data Processing
+In the aspect of pulblic health, "tornado" has by far the greatest impact in both number of injuries and number of fatalities.
+On the other hand, "flood" is the biggest cause of economic damage, especially in damage on property. In addition, "Drought" is the leading cause of ecomonic crop damage.
 
-Read the storm data to a R. This process may take some second. 
+
+# Data Processing
+
+First, download the data on your working directory.
+Next, read the storm data to a R. This process may take some second. 
 Please be patient!
 
 ```{r readSotrmFile,cache=TRUE}
@@ -37,7 +42,7 @@ if(!file.exists("stormData.csv.bz2")) {
 stormdata <- read.csv(file = "stormData.csv.bz2")
 ```
 
-There are {r ncol(stormdata)} fields in this file.
+There are `r ncol(stormdata)` fields in this file.
 
 ```{r colNames,cache=TRUE}
 names(stormdata)
@@ -57,6 +62,7 @@ stormdata <- stormdata[stormdata$BGN_DATE >= "2000-01-01",] # Subsetting
 
 # Q1) Which type of events are most harmful with respent to population health?
 
+## Variables
 
 The following fields are related in this analysis.
 
@@ -69,6 +75,7 @@ The following fields are related in this analysis.
 
 First, the sum of the fatalities and injuries in each event name was calculated.
 
+## Reshape the data
 
 ```{r reshapeHealth, cache=TRUE, results='hide'}
 library(plyr)
@@ -93,7 +100,7 @@ fataOrd$EVTYPE <- factor(fataOrd$EVTYPE,
                         levels = fataOrd[order(fataOrd$fatalities),"EVTYPE"])
 ```
 
-## Result(1)
+## Result (1)
 The number of injuries and fatalities from 2000 through 2011.
 
 ```{r plotting, fig.width=10,cache=TRUE}
@@ -128,7 +135,13 @@ The most harmful event seems to be a tornadoes.
 Although the number of injuries because of ECESSIVE HEAT is relatively
 small comparing to that of TORNADO, it may ealily lead to death.
 
+
+*******************************************************************************
+
+
 # Q2) Which type of events have the greatest economic consequence?
+
+## Variables
 
 I'm going to compare the amount of "crop damage" and "property damage" among
 each types of events.
@@ -163,6 +176,8 @@ by absolute amount of damage. (unit: million)
 
 Although a number of records has lack blank in `CROPDMGEXP` and `PROPDMGEXP`
 field, these records are ingnored as `NA`s in this analysis.
+
+## Reshape the data
 
 ```{r replace, cache=TRUE}
 stormdata$CROPDMGEXP <- gsub("K", "0.001", stormdata$CROPDMGEXP)
@@ -218,3 +233,5 @@ ggplot(meltdamage, aes(x = EVTYPE, y = value, fill = variable)) +
         coord_flip() 
         
 ```
+
+Flood has the greatest impact on ecomonic damage, followed by Hurrycane/typhoon and Storm surge. In many cases, the amount of damage on property are larger than that on crop, then the total amount of damage tend to reflect mainly the amount of property damage. In the aspect of crop damage, Drought is the leading cause.
